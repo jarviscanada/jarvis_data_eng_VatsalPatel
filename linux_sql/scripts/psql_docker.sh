@@ -14,7 +14,7 @@ fi
 # If docker is not running then start the docker.
 # shellcheck disable=SC2046
 if [ $(systemctl status docker | wc -l) != 20 ]; then
-   systemctl start docker
+   sudo systemctl start docker
 fi
 
 #If user selected create option
@@ -30,20 +30,12 @@ if [ "$userAction" == "create" ]; then
    # If a docker container named jrvs-psql already exist
    if [ "$(docker container ls -a -f name=jrvs-psql | wc -l)" == "2" ]; then
     echo "A docker container named \"jrvs-psql\" already exist!"
-    exit 1
+    exit 0
    fi
 
    # otherwise create a new container
-   docker pull postgres
-   docker volume create pgdata
    docker run --name jrvs-psql -e POSTGRES_PASSWORD=$db_password -e POSTGRES_USER=$db_username -d -v pgdata:/var/lib/postgresql/data -p 5432:5432 postgres
    exit $?
-
-   # if some error occurred while creating a container
-   if [ "$(docker container ls -a -f name=jrvs-psql | wc -l)" != 2 ]; then
-    echo "Failed to create the docker container named jrvs-psql."
-    exit 1
-   fi
 
 # if user opted for start action
 elif [ "$userAction" == "start" ]; then
@@ -51,14 +43,16 @@ elif [ "$userAction" == "start" ]; then
     echo "Container does not exist!"
     exit 1
   else
-    docker container start jrvs-psql
+    PSQL_CONTAINTER_NAME=jrvs-psql
+    docker container start $PSQL_CONTAINTER_NAME
     echo "Successfully started the container"
     exit $?
   fi
 
 # if user opted for stop action
 elif [ "$userAction" = "stop" ]; then
-  docker container stop jrvs-psql
+  PSQL_CONTAINTER_NAME=jrvs-psql
+  docker container stop $PSQL_CONTAINTER_NAME
   echo "Successfully stopped the container"
   exit $?
 
