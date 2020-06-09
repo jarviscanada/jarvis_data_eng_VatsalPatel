@@ -1,4 +1,9 @@
 #!/bin/bash
+# If user entered less than 5 arguments show the error.
+if [ $# -ne 5 ]; then
+  echo "Please enter valid number of arguments!"
+  exit 1
+fi
 
 # Store Values of passed arguments in variables
 psql_hostname=$1 #localhost
@@ -7,12 +12,6 @@ psql_dbname=$3 #host_agent
 psql_username=$4 #Database Username in case of creating the database
 psql_password=$5 #Database password
 export PGPASSWORD=$psql_password
-
-# If user entered less than 5 arguments show the error.
-if [ $# -ne 5 ]; then
-  echo "Please enter valid number of arguments!"
-  exit 1
-fi
 
 # Fetch cpu_usage data and store it into variables
 hostname=$(hostname -f)
